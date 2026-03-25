@@ -1,47 +1,104 @@
-# ═══════════════════════════════════════════════════════════
-# QuestForge - 5 Minute Setup
-# ═══════════════════════════════════════════════════════════
+name: QuestForge - Populate Repository
 
-name: QuestForge
-version: 2.0.0
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'API Version'
+        default: '1.0'
+        required: true
+      supabase_url:
+        description: 'Supabase URL'
+        required: true
+      environment:
+        description: 'Environment'
+        default: 'development'
+        required: true
 
-# ═══════════════════════════════════════════════════════════
-# SUPABASE CONFIG (Pre-filled)
-# ═══════════════════════════════════════════════════════════
-
-supabase:
-  url: "https://leisphnjslcuepflefri.supabase.co"
-  anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaXNwaG5qc2xjdWVwZmxlZnJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MzM2NjksImV4cCI6MjA4NjEwOTY2OX0.K06xmrpkhdgDH2XbG__NojIAe2Or_xW7eMHpHCsp44kv"
-
-# ═══════════════════════════════════════════════════════════
-# GITHUB CONFIG (Pre-filled)
-# ═══════════════════════════════════════════════════════════
-
-github:
-  username: justappgrabbin
-  repository: Questforge
-  pages_url: https://justappgrabbin.github.io/Questforge
-
-# ═══════════════════════════════════════════════════════════
-# APP SETTINGS
-# ═══════════════════════════════════════════════════════════
-
-app:
-  theme: dark
-  primary_color: "#6366f1"
-  accent_color: "#ec4899"
-  features:
-    encryption: true
-    gamification: true
-    cloud_sync: true
-
-# ═══════════════════════════════════════════════════════════
-# GAMIFICATION
-# ═══════════════════════════════════════════════════════════
-
-gamification:
-  xp_rewards:
-    create_project: 50
-    make_submission: 30
-    share_secret: 100
+jobs:
+  populate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to commit files back to repo
     
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create QuestForge configuration
+        run: |
+          mkdir -p config
+          cat > config/questforge.json << 'EOF'
+          {
+            "version": "${{ github.event.inputs.version || '1.0' }}",
+            "created_at": "${{ github.event.head_commit.timestamp || now }}",
+            "repository": "${{ github.repository }}"
+          }
+          EOF
+
+      - name: Create Supabase configuration
+        run: |
+          mkdir -p config
+          cat > config/supabase.json << 'EOF'
+          {
+            "url": "${{ github.event.inputs.supabase_url || secrets.SUPABASE_URL }}",
+            "environment": "${{ github.event.inputs.environment || 'development' }}"
+          }
+          EOF
+
+      - name: Create GitHub integration config
+        run: |
+          mkdir -p config
+          cat > config/github.json << 'EOF'
+          {
+            "token_ref": "GITHUB_TOKEN",
+            "repository": "${{ github.repository }}",
+            "workflow": "questforge.yaml"
+          }
+          EOF
+
+      - name: Create App manifest
+        run: |
+          mkdir -p config
+          cat > config/app.json << 'EOF'
+          {
+            "name": "QuestForge",
+            "type": "gamified-project-platform",
+            "features": [
+              "project-management",
+              "submissions",
+              "secret-sharing",
+              "organization"
+            ]
+          }
+          EOF
+
+      - name: Create Gamification config
+        run: |
+          mkdir -p config
+          cat > config/gamification.json << 'EOF'
+          {
+            "enabled": true,
+            "systems": [
+              "achievements",
+              "leaderboards",
+              "challenges",
+              "rewards"
+            ],
+            "integrations": {
+              "projects": true,
+              "submissions": true,
+              "secrets": true
+            }
+          }
+          EOF
+
+      - name: Commit and push generated files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add config/
+          git diff --staged --quiet || git commit -m "chore: populate QuestForge configuration [skip ci]"
+          git push

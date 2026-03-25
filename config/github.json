@@ -1,0 +1,5 @@
+{
+  "token_ref": "GITHUB_TOKEN",
+  "repository": "justappgrabbin/Questforge",
+  "workflow": "questforge.yaml"
+}

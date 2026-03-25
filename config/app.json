@@ -1,0 +1,10 @@
+{
+  "name": "QuestForge",
+  "type": "gamified-project-platform",
+  "features": [
+    "project-management",
+    "submissions",
+    "secret-sharing",
+    "organization"
+  ]
+}

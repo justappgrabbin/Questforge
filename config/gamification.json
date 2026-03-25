@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "systems": [
+    "achievements",
+    "leaderboards",
+    "challenges",
+    "rewards"
+  ],
+  "integrations": {
+    "projects": true,
+    "submissions": true,
+    "secrets": true
+  }
+}

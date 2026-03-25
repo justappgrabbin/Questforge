@@ -21,7 +21,7 @@ jobs:
   populate:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Needed to commit files back to repo
+      contents: write
     
     steps:
       - name: Checkout repository
@@ -30,20 +30,23 @@ jobs:
       - name: Create QuestForge configuration
         run: |
           mkdir -p config
-          cat > config/questforge.json << 'EOF'
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > config/questforge.json << EOF
           {
             "version": "${{ github.event.inputs.version || '1.0' }}",
-            "created_at": "${{ github.event.head_commit.timestamp || now }}",
+            "created_at": "$TIMESTAMP",
             "repository": "${{ github.repository }}"
           }
           EOF
 
       - name: Create Supabase configuration
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         run: |
           mkdir -p config
-          cat > config/supabase.json << 'EOF'
+          cat > config/supabase.json << EOF
           {
-            "url": "${{ github.event.inputs.supabase_url || secrets.SUPABASE_URL }}",
+            "url": "${{ github.event.inputs.supabase_url || env.SUPABASE_URL }}",
             "environment": "${{ github.event.inputs.environment || 'development' }}"
           }
           EOF
@@ -51,7 +54,7 @@ jobs:
       - name: Create GitHub integration config
         run: |
           mkdir -p config
-          cat > config/github.json << 'EOF'
+          cat > config/github.json << EOF
           {
             "token_ref": "GITHUB_TOKEN",
             "repository": "${{ github.repository }}",
@@ -62,7 +65,7 @@ jobs:
       - name: Create App manifest
         run: |
           mkdir -p config
-          cat > config/app.json << 'EOF'
+          cat > config/app.json << EOF
           {
             "name": "QuestForge",
             "type": "gamified-project-platform",
@@ -78,7 +81,7 @@ jobs:
       - name: Create Gamification config
         run: |
           mkdir -p config
-          cat > config/gamification.json << 'EOF'
+          cat > config/gamification.json << EOF
           {
             "enabled": true,
             "systems": [

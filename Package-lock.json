@@ -1,0 +1,50 @@
+
+base_path = "/mnt/kimi/output/gamified-projects"
+
+# Create a package-lock.json for the GitHub Action
+package_lock = '''{
+  "name": "questforge",
+  "version": "2.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "questforge",
+      "version": "2.0.0",
+      "dependencies": {
+        "@supabase/supabase-js": "^2.39.0",
+        "@types/uuid": "^9.0.0",
+        "clsx": "^2.1.0",
+        "date-fns": "^3.0.0",
+        "framer-motion": "^11.0.0",
+        "lucide-react": "^0.400.0",
+        "next": "14.2.0",
+        "react": "^18.3.0",
+        "react-dom": "^18.3.0",
+        "tailwind-merge": "^2.2.0",
+        "uuid": "^9.0.0",
+        "zustand": "^4.5.0"
+      },
+      "devDependencies": {
+        "@types/node": "^20",
+        "@types/react": "^18",
+        "@types/react-dom": "^18",
+        "autoprefixer": "^10.0.1",
+        "postcss": "^8",
+        "tailwindcss": "^3.3.0",
+        "typescript": "^5"
+      }
+    }
+  }
+}
+'''
+
+with open(f"{base_path}/package-lock.json", "w") as f:
+    f.write(package_lock)
+
+print("✅ Created package-lock.json")
+print("📤 Upload this file to your GitHub repo!")
+print()
+print("Or update the workflow to not require it:")
+print("  Change: cache: npm")
+print("  To:     cache-dependency-path: '**/package.json'")
